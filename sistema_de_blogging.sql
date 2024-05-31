@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 29, 2024 at 04:04 AM
+-- Generation Time: May 31, 2024 at 04:57 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -43,7 +43,7 @@ INSERT INTO `categories` (`id`, `name`, `created_at`, `updated_at`) VALUES
 (2, 'Saludable', '2024-05-27 16:57:38', '2024-05-27 16:57:38'),
 (3, 'India', '2024-05-27 16:57:38', '2024-05-27 16:57:38'),
 (4, 'Mexicana', '2024-05-27 16:57:38', '2024-05-27 16:57:38'),
-(5, 'Japonesa', '2024-05-27 16:57:38', '2024-05-27 16:57:38');
+(7, 'Peruana', '2024-05-29 04:45:26', '2024-05-29 04:45:26');
 
 -- --------------------------------------------------------
 
@@ -65,16 +65,18 @@ CREATE TABLE `comments` (
 --
 
 INSERT INTO `comments` (`id`, `post_id`, `user_id`, `content`, `created_at`, `updated_at`) VALUES
-(1, 1, 2, '¡Me encanta esta receta de Carbonara! ¿Puedo usar panceta en lugar de guanciale?', '2024-05-27 16:58:02', '2024-05-27 16:58:02'),
 (2, 1, 3, '¿Cuánto tiempo se debe cocinar la pasta para que quede al dente?', '2024-05-27 16:58:02', '2024-05-27 16:58:02'),
-(3, 2, 1, 'La ensalada César es mi favorita, ¿puedo agregar pollo?', '2024-05-27 16:58:02', '2024-05-27 16:58:02'),
 (4, 2, 4, '¿Qué tipo de lechuga recomiendas usar?', '2024-05-27 16:58:02', '2024-05-27 16:58:02'),
-(5, 3, 1, 'El pollo al curry quedó increíble, gracias por la receta.', '2024-05-27 16:58:02', '2024-05-27 16:58:02'),
+(5, 3, 1, 'El pollo se quemó. No me gustó la comida', '2024-05-27 16:58:02', '2024-05-30 19:13:40'),
 (6, 3, 2, '¿Puedo usar leche de coco en lugar de crema?', '2024-05-27 16:58:02', '2024-05-27 16:58:02'),
 (7, 4, 1, '¡Estos tacos son los mejores que he probado!', '2024-05-27 16:58:02', '2024-05-27 16:58:02'),
 (8, 4, 3, '¿Qué tipo de tortillas usaste para esta receta?', '2024-05-27 16:58:02', '2024-05-27 16:58:02'),
 (9, 5, 4, 'El sushi salió perfecto, gracias por los consejos.', '2024-05-27 16:58:02', '2024-05-27 16:58:02'),
-(10, 5, 1, '¿Alguna recomendación para el tipo de arroz que debo usar?', '2024-05-27 16:58:02', '2024-05-27 16:58:02');
+(10, 5, 1, '¿Alguna recomendación para el tipo de arroz que debo usar?', '2024-05-27 16:58:02', '2024-05-27 16:58:02'),
+(11, 8, 2, 'No tiene nada de sal este arroz! Fuera de mi cocina!', '2024-05-30 18:53:44', '2024-05-30 18:53:44'),
+(12, 5, 3, 'Se me quemó el arroz.', '2024-05-30 19:21:39', '2024-05-30 19:21:39'),
+(13, 5, 5, 'Pero no hay arroz en esta receta', '2024-05-30 19:22:31', '2024-05-30 19:22:31'),
+(14, 5, 2, 'tiaVeneno, el sushi es hecho de arroz, no de pescado solamente. Anda leé un poco', '2024-05-30 19:23:55', '2024-05-30 19:23:55');
 
 -- --------------------------------------------------------
 
@@ -101,7 +103,8 @@ INSERT INTO `postcategories` (`post_id`, `category_id`) VALUES
 (4, 2),
 (4, 4),
 (5, 2),
-(5, 5);
+(10, 2),
+(10, 3);
 
 -- --------------------------------------------------------
 
@@ -130,7 +133,8 @@ INSERT INTO `posts` (`id`, `user_id`, `title`, `content`, `created_at`, `updated
 (4, 4, 'Receta de Tacos Mexicanos', 'Tacos auténticos con carne auténtica, cilantro y cebolla.', '2024-05-27 16:56:43', '2024-05-29 00:10:57', '1716941457679-tacos.webp'),
 (5, 5, 'Receta de Sushi', 'Cómo preparar sushi en casa, paso a paso.', '2024-05-27 16:56:43', '2024-05-27 17:23:25', 'sushi.jpg'),
 (6, 1, 'Arroz Rico', 'En menos de 3 minutos! con solo 2 ingredientes!', '2024-05-28 19:26:05', '2024-05-28 19:58:40', '1716924365221-arrozRico.jpg'),
-(8, 6, 'Arroz sin agua', 'Esta receta se hizo en el desierto de sahara! Tienes que verlo!', '2024-05-28 23:45:16', '2024-05-28 23:45:16', '1716939916853-arrozSeco.png');
+(8, 6, 'Arroz sin agua', 'Esta receta se hizo en el desierto de sahara! Tienes que verlo!', '2024-05-28 23:45:16', '2024-05-28 23:45:16', '1716939916853-arrozSeco.png'),
+(10, 3, 'Hamburguesa Callejera Indiana', 'Comida de dudosa procedencia, rica en proteinas y minerales!', '2024-05-29 03:20:17', '2024-05-29 03:20:17', '1716952817895-hamburguesaIndiana.jpg');
 
 -- --------------------------------------------------------
 
@@ -208,19 +212,19 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `comments`
 --
 ALTER TABLE `comments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `posts`
 --
 ALTER TABLE `posts`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `users`
