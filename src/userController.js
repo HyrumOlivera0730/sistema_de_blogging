@@ -43,11 +43,11 @@ export const getUsers = async (req, res) => {
   }
 }
 export const updateUser = async (req, res) => {
-  const { id, nombre } = req.params
+  const { id, name } = req.params
   const { username, email, password, role } = req.body
 
   try {
-    const [rows] = await pool.execute('SELECT * FROM users WHERE ID = ? AND username = ?', [id, nombre])
+    const [rows] = await pool.execute('SELECT * FROM users WHERE ID = ? AND username = ?', [id, name])
     if (rows.length === 0) {
       return res.status(404).json({ message: 'Usuario no encontrado' })
     }
@@ -69,10 +69,10 @@ export const updateUser = async (req, res) => {
   }
 }
 export const deleteUserAndImage = async (req, res) => {
-  const { id, nombre } = req.params
+  const { id, username } = req.params
 
   try {
-    const [rows] = await pool.execute('SELECT photoUser FROM users WHERE ID = ? AND username = ?', [id, nombre])
+    const [rows] = await pool.execute('SELECT photoUser FROM users WHERE ID = ? AND username = ?', [id, username])
 
     if (rows.length === 0) {
       return res.status(404).json({ message: 'Usuario no encontrado' })
@@ -94,10 +94,10 @@ export const deleteUserAndImage = async (req, res) => {
       }
     }
 
-    const [result] = await pool.query('DELETE FROM users WHERE ID = ? AND username = ?', [id, nombre])
+    const [result] = await pool.query('DELETE FROM users WHERE ID = ? AND username = ?', [id, username])
 
     if (result.affectedRows === 1) {
-      console.log(`Ruta de eliminar a un usuario DELETE http://localhost:3000/api/access/delete/${id}/${nombre}`)
+      console.log(`Ruta de eliminar a un usuario DELETE http://localhost:3000/api/access/delete/${id}/${username}`)
       return res.status(200).json({ message: 'Se eliminó el usuario correctamente' })
     }
 

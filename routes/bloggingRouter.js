@@ -7,8 +7,8 @@ const router = Router()
 // Gestión de Usuarios:
 router.get('/access/:id/:username', getUsers)
 router.post('/access/createUser', uploadImage.single('imagen'), createUser)
-router.put('/access/update/:id/:nombre', uploadImage.single('imagen'), updateUser, manejarErrorArchivo)
-router.delete('/access/delete/:id/:nombre', deleteUserAndImage)
+router.put('/access/update/:id/:name', uploadImage.single('imagen'), updateUser, manejarErrorArchivo)
+router.delete('/access/delete/:id/:username', deleteUserAndImage)
 // Gestión de Publicaciones:
 router.post('/post/newPost/:id/:nombre', uploadPost.single('imagen'), createPost)
 router.put('/post/update/:id/:codePost', uploadPost.single('imagen'), updatePost, manejarErrorArchivo)

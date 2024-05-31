@@ -77,7 +77,7 @@
         }
       }
     },
-    "/api/access/update/{id}/{nombre}": {
+    "/api/access/update/{id}/{name}": {
       "put": {
         "description": "",
         "parameters": [
@@ -88,7 +88,7 @@
             "type": "string"
           },
           {
-            "name": "nombre",
+            "name": "name",
             "in": "path",
             "required": true,
             "type": "string"
@@ -128,7 +128,7 @@
         }
       }
     },
-    "/api/access/delete/{id}/{nombre}": {
+    "/api/access/delete/{id}/{username}": {
       "delete": {
         "description": "",
         "parameters": [
@@ -139,7 +139,7 @@
             "type": "string"
           },
           {
-            "name": "nombre",
+            "name": "username",
             "in": "path",
             "required": true,
             "type": "string"
