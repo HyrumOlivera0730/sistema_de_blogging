@@ -13,7 +13,7 @@ export const createUser = async (req, res) => {
     }
     const [result] = await pool.query('INSERT INTO users (username, email, password, role, photoUser) VALUES (?, ?, ?, ?, ?)', [username, email, password, role, nuevoNombreArchivo])
     res.status(201).json({ message: 'Usuario nuevo creado con éxito', id: result.insertId, username, email, password, role, photoUser: nuevoNombreArchivo })
-    console.log('Ruta de crear a un empleado POST http://localhost:3000/api/access/createUser')
+    console.log('Ruta de crear a un usuario POST http://localhost:3000/api/access/createUser')
   } catch (error) {
     res.status(500).json({ error: error.message })
   }
@@ -162,17 +162,14 @@ export const createPost = async (req, res) => {
     res.status(500).json({ error: error.message })
   }
 }
-export const deletePostAndImage = async (req, res) => {
+export const deletePostAndImageAndComments = async (req, res) => {
   const { id, user_id } = req.params
-
   try {
-    // Verificar si la publicación existe
     const [postRows] = await pool.execute('SELECT image FROM posts WHERE ID = ? AND user_id = ?', [id, user_id])
     if (postRows.length === 0) {
       return res.status(404).json({ message: 'Publicación no encontrada' })
     }
 
-    // Eliminar la imagen asociada a la publicación
     const photoPost = postRows[0].image
     if (photoPost) {
       const rutaArchivo = path.resolve(`./uploads/image/${photoPost}`)
@@ -188,10 +185,10 @@ export const deletePostAndImage = async (req, res) => {
       }
     }
 
-    // Eliminar las categorías asociadas a la publicación
     await pool.query('DELETE FROM postcategories WHERE post_id = ?', [id])
 
-    // Eliminar la publicación
+    await pool.query('DELETE FROM comments WHERE post_id = ?', [id])
+
     const [result] = await pool.query('DELETE FROM posts WHERE ID = ? AND user_id = ?', [id, user_id])
 
     if (result.affectedRows === 1) {
@@ -206,16 +203,12 @@ export const deletePostAndImage = async (req, res) => {
 }
 export const updatePost = async (req, res) => {
   const { id, codePost } = req.params
-  const { title, content, categories } = req.body // Agrega la propiedad 'categories' al cuerpo de la solicitud
-
+  const { title, content, categories } = req.body
   try {
-    // Verificar si la publicación y el usuario existen
     const [rows] = await pool.execute('SELECT * FROM posts WHERE ID = ? AND user_id = ?', [id, codePost])
     if (rows.length === 0) {
       return res.status(404).json({ message: 'Publicación no encontrada' })
     }
-
-    // Verificar si se proporcionaron categorías
     if (!categories || !Array.isArray(categories)) {
       return res.status(400).json({ message: 'Debes proporcionar un array de categorías para la publicación' })
     }
@@ -262,9 +255,9 @@ export const updatePost = async (req, res) => {
       message: 'Publicación modificada con éxito',
       id,
       title,
-      image: nuevoNombreArchivo || rows[0].image, // Utilizar la nueva imagen si se proporcionó, de lo contrario, conservar la imagen existente
+      image: nuevoNombreArchivo || rows[0].image,
       content,
-      categories // Devolver las categorías en la respuesta
+      categories
     })
 
     console.log(`Ruta de actualizar una publicación PUT http://localhost:3000/api/access/update/${id}/${codePost}`)
@@ -301,7 +294,7 @@ export const getPostByTitle = async (req, res) => {
       return res.status(404).json({ message: 'Publicación no encontrada' })
     }
     res.status(200).json(rows[0])
-    console.log(`Ruta de ver a una publicación GET http://localhost:3000/api/post/${title}`)
+    console.log(`Ruta de ver a una publicación GET http://localhost:3000/api/post/view/${title}`)
   } catch (error) {
     res.status(500).json({ error: error.message })
   }
@@ -314,7 +307,7 @@ export const getPostOwn = async (req, res) => {
       return res.status(404).json({ message: 'Publicación no encontrada' })
     }
     res.status(200).json({ message: `Lista de publicaciones mi cuenta ${user}`, rows })
-    console.log(`Ruta de ver a una publicación GET http://localhost:3000/api/post/${user}`)
+    console.log(`Ruta de ver a una publicación GET http://localhost:3000/api/post/view/${user}/myposts`)
   } catch (error) {
     res.status(500).json({ error: error.message })
   }
@@ -328,7 +321,7 @@ export const getPostCommunity = async (req, res) => {
     }
 
     res.status(200).json({ message: 'Lista total de publicaciones', rows })
-    console.log('Ruta de ver todas las publicaciones de la comunidad GET http://localhost:3000/api/posts/community')
+    console.log('Ruta de ver todas las publicaciones de la comunidad GET http://localhost:3000/api/posts/view/community')
   } catch (error) {
     res.status(500).json({ error: error.message })
   }
@@ -342,7 +335,6 @@ export const getCategory = async (req, res) => {
     }
 
     const categoryId = categoryRows[0].id
-    // Buscar las publicaciones asociadas a la categoría
     const [postRows] = await pool.query(`
     SELECT p.* 
     FROM posts p
@@ -350,14 +342,12 @@ export const getCategory = async (req, res) => {
     WHERE pc.category_id = ?
     `, [categoryId])
 
-    // Verificar si se encontraron publicaciones para la categoría
     if (postRows.length === 0) {
       return res.status(404).json({ message: 'No se encontraron publicaciones para esta categoría' })
     }
 
-    // Devolver las publicaciones encontradas
     res.status(200).json({ message: `Lista de publicaciones de la categoria ${nameCategory}`, postRows })
-    console.log(`Ruta de ver publicaciones de la categoría ${nameCategory}: GET http://localhost:3000/api/post/update/category/${nameCategory}`)
+    console.log(`Ruta de ver publicaciones de la categoría ${nameCategory}: GET http://localhost:3000/api/post/view/category/${nameCategory}`)
   } catch (error) {
     res.status(500).json({ error: error.message })
   }
@@ -373,14 +363,12 @@ export const getAllCategories = async (req, res) => {
 
     const user = userRows[0]
 
-    // Verificar si el rol del usuario es 'admin'
     if (user.role === 'admin') {
       console.log(`Ruta de ver todos las categorias con el admin http://localhost:3000/api/access/${id}/${username}/allCategories`)
       const [allCategories] = await pool.query('SELECT * FROM categories')
       return res.status(200).json({ message: 'Accesso concedido para admin', allCategories })
     }
 
-    // Si no es 'admin', solo devolver la información del usuario
     res.status(200).json({ message: 'Acesso denegado: no tienes permiso de ver las categorias' })
     console.log('Ruta denegada para ver categorias')
   } catch (error) {
@@ -398,14 +386,12 @@ export const createCategory = async (req, res) => {
 
     const user = userRows[0]
 
-    // Verificar si el rol del usuario es 'admin'
     if (user.role === 'admin') {
       console.log(`Ruta de ver todos las categorias con el admin http://localhost:3000/api/access/${id}/${username}/allCategories`)
       const [allCategories] = await pool.query('INSERT INTO categories (name) VALUES (?)', [name])
       return res.status(200).json({ message: 'Categoria nueva creado con éxito', id: allCategories.insertId, name })
     }
 
-    // Si no es 'admin', solo devolver la información del usuario
     res.status(200).json({ message: 'Acesso denegado: no tienes permiso de crear una categoria' })
     console.log('Ruta denegada para ver categorias')
   } catch (error) {
@@ -423,21 +409,17 @@ export const updateCategory = async (req, res) => {
 
     const user = userRows[0]
 
-    // Verificar si el rol del usuario es 'admin'
     if (user.role === 'admin') {
-      // Verificar si la categoría existe
       const [categoryRows] = await pool.query('SELECT * FROM categories WHERE ID = ?', [idCategory])
       if (categoryRows.length === 0) {
         return res.status(404).json({ message: 'Categoría no encontrada' })
       }
 
-      // Actualizar la categoría
       await pool.query('UPDATE categories SET name = ? WHERE ID = ?', [name, idCategory])
-
+      console.log('Ruta de actualizar a una categoria PUT http://localhost:3000/api/post/:post_id/comment/:id/:user_id')
       return res.status(200).json({ message: `La categoría ${name} ha sido modificada con éxito`, id: idCategory, name })
     }
 
-    // Si no es 'admin', devolver un mensaje de acceso denegado
     res.status(403).json({ message: 'Acceso denegado: no tienes permiso para modificar una categoría' })
   } catch (error) {
     res.status(500).json({ error: error.message })
@@ -454,23 +436,18 @@ export const deleteCategory = async (req, res) => {
 
     const user = userRows[0]
 
-    // Verificar si el rol del usuario es 'admin'
     if (user.role === 'admin') {
-      // Verificar si la categoría existe
       const [categoryRows] = await pool.query('SELECT * FROM categories WHERE ID = ?', [idCategory])
       if (categoryRows.length === 0) {
         return res.status(404).json({ message: 'Categoría no encontrada' })
       }
 
-      // Eliminar la categoría de la tabla 'postcategories'
       await pool.query('DELETE FROM postcategories WHERE category_id = ?', [idCategory])
-      // Eliminar la categoría de la tabla 'categories'
       await pool.query('DELETE FROM categories WHERE ID = ?', [idCategory])
       console.log('Ruta de eliminar a una categoria DELETE http://localhost:3000/api/access/:id/:username/categories/:idCategory')
       return res.status(200).json({ message: `La categoría ${name} del id ${idCategory} ha sido eliminada con éxito de 'categories' y 'postcategories`, id: idCategory, name })
     }
 
-    // Si no es 'admin', devolver un mensaje de acceso denegado
     res.status(403).json({ message: 'Acceso denegado: no tienes permiso para eliminar una categoría' })
   } catch (error) {
     res.status(500).json({ error: error.message })
@@ -481,7 +458,6 @@ export const getAllComments = async (req, res) => {
   const { post_id } = req.params
 
   try {
-    // Consultar la base de datos para obtener los comentarios de una publicación específica
     const [comments] = await pool.query('SELECT * FROM comments WHERE post_id = ?', [post_id])
 
     if (comments.length === 0) {
@@ -499,19 +475,16 @@ export const createCommentary = async (req, res) => {
   const { content } = req.body
 
   try {
-    // Verificar si el usuario existe
     const [userRows] = await pool.query('SELECT * FROM users WHERE ID = ?', [user_id])
     if (userRows.length === 0) {
       return res.status(404).json({ message: 'Usuario no encontrado' })
     }
 
-    // Verificar si la publicación existe
     const [postRows] = await pool.query('SELECT * FROM posts WHERE ID = ?', [post_id])
     if (postRows.length === 0) {
       return res.status(404).json({ message: 'Publicación no encontrada' })
     }
 
-    // Insertar el comentario en la base de datos
     const [result] = await pool.query(
       'INSERT INTO comments (post_id, user_id, content, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())',
       [post_id, user_id, content]
@@ -527,7 +500,6 @@ export const deleteCommentary = async (req, res) => {
   const { post_id, id, user_id } = req.params
 
   try {
-    // Verificar si el comentario existe y si el usuario es el autor
     const [commentRows] = await pool.query('SELECT * FROM comments WHERE ID = ? AND post_id = ? AND user_id = ?', [id, post_id, user_id])
     if (commentRows.length === 0) {
       return res.status(404).json({ message: 'Comentario no encontrado o no tienes permiso para eliminar este comentario' })
@@ -535,7 +507,6 @@ export const deleteCommentary = async (req, res) => {
 
     const comment = commentRows[0].content
 
-    // Eliminar el comentario
     await pool.query('DELETE FROM comments WHERE ID = ?', [id])
 
     res.status(200).json({ message: 'Comentario eliminado con éxito', id, content: comment })
@@ -549,13 +520,11 @@ export const updateCommentary = async (req, res) => {
   const { content } = req.body
 
   try {
-    // Verificar si el comentario existe y si el usuario es el autor
     const [commentRows] = await pool.query('SELECT * FROM comments WHERE ID = ? AND post_id = ? AND user_id = ?', [id, post_id, user_id])
     if (commentRows.length === 0) {
       return res.status(404).json({ message: 'Comentario no encontrado o no tienes permiso para modificar este comentario' })
     }
 
-    // Actualizar el comentario
     const [result] = await pool.query('UPDATE comments SET content = ?, updated_at = NOW() WHERE ID = ?', [content, id])
 
     if (result.affectedRows === 0) {

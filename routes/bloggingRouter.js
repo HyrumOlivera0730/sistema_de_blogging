@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { createCategory, createCommentary, createPost, createUser, deleteCategory, deleteCommentary, deletePostAndImage, deleteUserAndImage, getAllCategories, getAllComments, getCategory, getPostByTitle, getPostCommunity, getPostOwn, getUsers, updateCategory, updateCommentary, updatePost, updateUser } from '../src/userController.js'
+import { createCategory, createCommentary, createPost, createUser, deleteCategory, deleteCommentary, deletePostAndImageAndComments, deleteUserAndImage, getAllCategories, getAllComments, getCategory, getPostByTitle, getPostCommunity, getPostOwn, getUsers, updateCategory, updateCommentary, updatePost, updateUser } from '../src/userController.js'
 import { uploadImage, uploadPost } from '../config/multer.js'
 import { manejarErrorArchivo } from '../src/helper.js'
 
@@ -12,11 +12,11 @@ router.delete('/access/delete/:id/:nombre', deleteUserAndImage)
 // Gestión de Publicaciones:
 router.post('/post/newPost/:id/:nombre', uploadPost.single('imagen'), createPost)
 router.put('/post/update/:id/:codePost', uploadPost.single('imagen'), updatePost, manejarErrorArchivo)
-router.get('/post/update/:user/myposts', getPostOwn)
-router.get('/post/update/communityposts', getPostCommunity)
-router.get('/post/update/category/:nameCategory', getCategory)
-router.delete('/post/delete/:id/:user_id', deletePostAndImage)
-router.get('/post/:title', getPostByTitle)
+router.get('/post/view/:user/myposts', getPostOwn)
+router.get('/post/view/communityposts', getPostCommunity)
+router.get('/post/view/category/:nameCategory', getCategory)
+router.delete('/post/delete/:id/:user_id', deletePostAndImageAndComments)
+router.get('/post/view/:title', getPostByTitle)
 // Gestión de Categorías:
 router.get('/access/:id/:username/allCategories', getAllCategories)
 router.post('/access/:id/:username/createCategory', createCategory)
