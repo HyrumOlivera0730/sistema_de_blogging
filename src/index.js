@@ -10,4 +10,4 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(jsonDocs))
 app.use('/api', bloggingRouter)
 app.use('*', (req, res) => res.end('USE: No se encontró la ruta'))
 
-app.listen(PORT, () => console.log(`Servidor levantado porraaaaaaa, vai tomar nos olhos em http:/localhost:${PORT}`))
+app.listen(PORT, () => console.log(`Servidor levantado em http:/localhost:${PORT}`))
